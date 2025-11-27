@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Fare Predictor</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient shadow-sm">
+        <div class="container">
+            <a style="color: #007bff" class="navbar-brand fw-bold fs-3" href="/">Flight Fare Predictor</a>
+        </div>
+    </nav>
+
+
+    <div class="container mt-5 mb-5">
+
+        <!-- FORM CARD -->
+        <div class="card main-card shadow-lg p-4">
+            <h2 class="text-center mb-4 fw-bold text-primary">Find Your Best Flight Deals</h2>
+
+            <form action="/compare" method="post">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Departure Date & Time</label>
+                        <input type="datetime-local" name="Dep_Time" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Arrival Date & Time</label>
+                        <input type="datetime-local" name="Arrival_Time" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Source</label>
+                        <select name="Source" class="form-select" required>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Kolkata">Kolkata</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Chennai">Chennai</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Destination</label>
+                        <select name="Destination" class="form-select" required>
+                            <option value="Cochin">Cochin</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="New Delhi">Chennai</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                            <option value="Kolkata">Kolkata</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Stops</label>
+                        <select name="stops" class="form-select" required>
+                            <option value="0">Non-Stop</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Min Fare (₹)</label>
+                        <input type="number" name="min_price" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Max Fare (₹)</label>
+                        <input type="number" name="max_price" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-gradient btn-lg px-5 py-2">Predict & Compare</button>
+                </div>
+
+            </form>
+        </div>
+
+
+
+        <!-- BEST FARE -->
+        {% if best_text %}
+        <div class="alert alert-info text-center mt-5 shadow-sm fw-bold fs-5">{{ best_text }}</div>
+        {% endif %}
+
+        <!-- STATUS MESSAGE -->
+        {% if status_text %}
+        <div class="alert alert-warning text-center mt-3 shadow-sm fw-semibold">{{ status_text }}</div>
+        {% endif %}
+
+
+
+        <!-- TABLE -->
+        {% if result_table %}
+        <div class="table-container mt-4 p-3 shadow-sm rounded">
+            <center><h4 class="fw-bold mb-3 text-center text-primary">Fare Comparison for Selected Date</h4></center>
+            {{ result_table | safe }}
+        </div>
+        {% endif %}
+
+
+
+        <!-- CHEAPEST DAY -->
+        {% if cheapest_text %}
+        <div class="alert alert-success text-center mt-4 fw-bold fs-6">{{ cheapest_text }}</div>
+        {% endif %}
+
+
+
+        <!-- TREND CHART -->
+        <div class="chart-container mt-5">
+            <h4 class="fw-bold mb-3 text-center text-warning">📊 7-Day Fare Trend</h4>
+            <canvas id="fareChart"></canvas>
+        </div>
+
+
+
+        <!-- INTERACTIVE CALENDAR -->
+        <div class="calendar-container mt-5">
+            <h4 class="fw-bold mb-3 text-center text-success">🗓️ Click a Date to Highlight Fare</h4>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+    <footer class="footer text-center mt-5">
+        <p>© 2025 Mohamed Rizwan | AI Flight Fare Comparison </p>
+    </footer>
+
+
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const trendData = {{ trend_data | safe }};
+        const calendarData = {{ calendar_data | safe }};
+        const grid = document.getElementById("calendarGrid");
+
+        // Build Chart
+        const ctx = document.getElementById('fareChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trendData.map(d => d.date),
+                datasets: [{
+                    label: 'Lowest Fare (₹)',
+                    data: trendData.map(d => d.fare),
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.15)',
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    pointBackgroundColor: trendData.map(() => '#007bff'),
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Highlight date in chart
+        function highlightDate(selectedDate) {
+            const index = trendData.findIndex(d => d.date === selectedDate);
+            if (index !== -1) {
+                chart.data.datasets[0].pointBackgroundColor =
+                    trendData.map(() => '#007bff');
+                chart.data.datasets[0].pointBackgroundColor[index] = '#ff4d4d';
+                chart.update();
+            }
+        }
+
+        // Build clickable calendar
+        if (calendarData) {
+            const cheapest = Math.min(...calendarData.map(d => d.fare));
+
+            calendarData.forEach(day => {
+                const div = document.createElement("div");
+                div.classList.add("calendar-day");
+                if (day.fare === cheapest) div.classList.add("cheapest");
+
+                div.innerHTML = `
+                    <h5>${day.date}</h5>
+                    <p>₹${day.fare}</p>
+                    <small>${day.airline}</small>
+                `;
+
+                div.onclick = () => {
+                    highlightDate(day.date);
+                    document
+                        .querySelectorAll('.calendar-day')
+                        .forEach(d => d.classList.remove('active'));
+                    div.classList.add('active');
+                };
+
+                grid.appendChild(div);
+            });
+        }
+    </script>
+
+</body>
+</html>

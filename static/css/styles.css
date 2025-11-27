@@ -1,0 +1,87 @@
+body {
+    background: linear-gradient(to right, #e0f7fa, #f1f8e9);
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    background: linear-gradient(90deg, #007bff, #00c6ff);
+    color: #00a8ff;
+}
+
+a{
+    color: #ff4d4d;
+}
+
+/* Gradient Button */
+.btn-gradient {
+    background: linear-gradient(90deg, #007bff, #00c6ff);
+    color: white;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #0069d9, #00a8ff);
+}
+
+/* Main Card */
+.main-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: none;
+}
+
+/* Table */
+.table-container {
+    background: #fff;
+    border-radius: 15px;
+    padding: 15px;
+}
+
+
+
+/* Calendar */
+.calendar-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.calendar-day {
+    width: 150px;
+    margin: 10px;
+    padding: 15px;
+    background: #fafafa;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 7px rgba(0,0,0,0.15);
+}
+
+.calendar-day:hover {
+    transform: translateY(-5px);
+    cursor: pointer;
+}
+
+.calendar-day.cheapest {
+    background-color: #dbf7dd;
+    border: 2px solid #1abc9c;
+}
+
+.calendar-day.active {
+    border: 2px solid #ff4d4d;
+    background-color: #ffeaea;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+}
+
+
+
+/* Footer */
+.footer {
+    background: #007bff;
+    color: white;
+    padding: 10px;
+    margin-top: 25px;
+}
